@@ -19,23 +19,31 @@ class Scraper:
     def __init__(self):
         self.properties = load_props()
 
-    def run(self):
+        self.api_key = self.properties['api_key']
+        self.url_base = self.properties['api_url_base']
 
-        print(self.properties['api_key'])
-        api_url_base = 'https://api.spoonacular.com/recipes/'
+    def send_request(self, query: str):
 
         headers = {"Content-Type": "application/json"}
-        params = {'apiKey': self.properties['api_key']}
-        api_url = api_url_base + 'search?query=cheese&number=2'
-        print(api_url)
+        params = {'apiKey': self.api_key}
+        api_url = self.url_base + query
 
         response = requests.get(api_url, headers=headers, params=params)
-
         if response.status_code == 200:
-            print(json.loads(response.content.decode('utf-8')))
+            print("Succesful Response\n")
+            return json.loads(response.content.decode('utf-8'))
         else:
-            print(response)
+            print("Error when running query:\n")
             print(response.text)
+
+        return False
+
+    def run(self):
+
+        recipe = self.send_request('search?query=burger&number=5')
+
+        for i in recipe['results']:
+            print(i['title'])
 
 def main():
     app = Scraper()
